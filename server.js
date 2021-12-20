@@ -2,6 +2,7 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
+const formatMessage = require('./utils/messages');
 
 const app = express();
 const server = http.createServer(app);
@@ -9,10 +10,18 @@ const server = http.createServer(app);
 // Set Static Folder
 app.use(express.static(path.join(__dirname + '/public')));
 
+const botName = 'ChatCord Bot';
+
 //Run When Client Connects
 const io = socketio(server);
 io.on('connection', (socket) => {
-  console.log('New User Connected');
+  socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
+
+  //Run When User Connects
+  socket.broadcast.emit(
+    'message',
+    formatMessage(botName, 'A new user has joined the chat')
+  );
 
   //Run When Client Disconnects
   socket.on('disconnect', () => {
@@ -21,7 +30,7 @@ io.on('connection', (socket) => {
 
   //Run When Client Sends Message
   socket.on('chat', (data) => {
-    io.sockets.emit('chat', data);
+    io.sockets.emit('chat', formatMessage('USER', data));
   });
 
   //Run When Client Sends Message
