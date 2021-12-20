@@ -1,8 +1,17 @@
 const chatForm = document.getElementById('chat-form');
 
+//Get username and Room from URL
+const { username, room } = Qs.parse(location.search, {
+  ignoreQueryPrefix: true,
+});
+console.log(username, room);
+
 const socket = io();
 
-socket.on('chat', (message) => {
+// Join Chatroom
+socket.emit('joinRoom', { username, room });
+
+socket.on('message', (message) => {
   console.log(message);
   outPutMessage(message);
 
